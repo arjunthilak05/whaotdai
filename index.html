@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Decision Matrix: A Dark Mode Journey</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap'); /* Keeping Fredoka One for headings if desired, but less prominent in dark mode */
+
+        :root {
+            /* Netflix-inspired Dark Theme Colors */
+            --primary-bg: #141414; /* Deep dark background */
+            --secondary-bg: #1F1F1F; /* Slightly lighter dark for cards/sections */
+            --card-border: #333333; /* Subtle border for elements */
+            --text-light: #E5E5E5; /* Light grey for primary text */
+            --text-dark: #AAAAAA; /* Darker grey for secondary text/labels */
+            --highlight-red: #E50914; /* Netflix Red */
+            --highlight-blue: #007BFF; /* A complementary blue for interactive elements */
+            --success-green: #28A745; /* Green for correct answers */
+            --error-red: #DC3545; /* Red for incorrect answers */
+            --accent-yellow: #FFC107; /* A subtle accent */
+
+            --border-radius: 8px;
+            --shadow-dark: 0 5px 15px rgba(0,0,0,0.5); /* Darker shadow for depth */
+            --shadow-inset: inset 0 0 10px rgba(0,0,0,0.3);
+            --gradient-nav: linear-gradient(90deg, #E50914, #831010);
+            --gradient-button: linear-gradient(45deg, #E50914, #B8070F);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.05; /* Very subtle */
+            color: var(--text-dark);
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) { top: 15%; left: 15%; animation-delay: 0s; font-size: 4rem;}
+        .shape:nth-child(2) { top: 25%; right: 15%; animation-delay: 3s; font-size: 3.5rem;}
+        .shape:nth-child(3) { bottom: 15%; left: 25%; animation-delay: 6s; font-size: 4rem;}
+        .shape:nth-child(4) { bottom: 25%; right: 25%; animation-delay: 1s; font-size: 3.5rem;}
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        header {
+            background-color: var(--secondary-bg);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: var(--shadow-dark);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid var(--highlight-red);
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); /* Very subtle shimmer */
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+            color: var(--highlight-red);
+        }
+        header p {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex-grow: 1;
+        }
+
+        .slide-container {
+            background-color: var(--secondary-bg);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-dark);
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .slide {
+            display: none;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--highlight-red);
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--card-border);
+            padding-bottom: 0.8rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: var(--highlight-blue);
+            font-size: 1.9rem;
+            margin: 2rem 0 1rem 0;
+        }
+
+        p {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .fun-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .fun-list li {
+            background-color: var(--primary-bg);
+            margin: 0.8rem 0;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-dark);
+            border: 1px solid var(--card-border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .fun-list li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+        }
+
+        .fun-list li::before {
+            content: '♦ '; /* Diamond bullet point */
+            color: var(--highlight-red);
+            font-weight: bold;
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        /* Interactive Decision Tree (IMPROVED) */
+        .decision-canvas {
+            position: relative;
+            width: 100%;
+            height: 550px;
+            background: var(--primary-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-inset);
+            border: 1px solid var(--card-border);
+        }
+
+        .connector-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connector-svg line {
+            stroke: var(--highlight-blue);
+            stroke-width: 3px;
+            stroke-dasharray: 8 4;
+            transition: all 0.05s linear;
+        }
+
+        .tree-node, .outcome-box {
+            position: absolute;
+            z-index: 10;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-dark);
+            text-align: center;
+        }
+        
+        .tree-node:hover, .outcome-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+            border-color: var(--highlight-red);
+        }
+
+        .tree-node {
+            background: var(--secondary-bg);
+            border: 3px solid var(--highlight-blue);
+            border-radius: var(--border-radius);
+            width: 160px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-light);
+            font-size: 1rem;
+            padding: 0.5rem;
+        }
+
+        .dragging {
+            cursor: grabbing !important;
+            transform: scale(1.1) !important;
+            z-index: 1000 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.9) !important;
+        }
+
+        .outcome-box {
+            background: var(--success-green);
+            color: white;
+            padding: 1.2rem;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            min-width: 140px;
+            border: 1px solid #1a6f2c;
+        }
+
+        /* Drag and Drop Activity */
+        .drag-activity {
+            background-color: var(--secondary-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-dark);
+        }
+
+        .drag-item {
+            display: inline-block;
+            background-color: var(--accent-yellow);
+            color: var(--primary-bg);
+            padding: 0.8rem 1.2rem;
+            margin: 0.5rem;
+            border-radius: var(--border-radius);
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .drag-item:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.5);
+        }
+
+        .drop-zone {
+            min-height: 100px;
+            border: 3px dashed var(--highlight-blue);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+            transition: all 0.3s ease;
+            color: var(--text-dark);
+            font-style: italic;
+            background-color: var(--primary-bg);
+        }
+
+        .drop-zone.drag-over {
+            background-color: rgba(0, 123, 255, 0.1);
+            border-color: var(--highlight-red);
+            color: var(--highlight-red);
+        }
+
+        .drop-zone.correct-drop {
+            background-color: rgba(40, 167, 69, 0.2);
+            border-color: var(--success-green);
+            color: var(--success-green);
+        }
+
+        .drop-zone.incorrect-drop {
+            background-color: rgba(220, 53, 69, 0.2);
+            border-color: var(--error-red);
+            color: var(--error-red);
+        }
+
+        /* Enhanced Quiz */
+        .quiz-container {
+            background: var(--secondary-bg);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+            color: var(--text-light);
+            box-shadow: var(--shadow-dark);
+            border: 1px solid var(--card-border);
+        }
+
+        .quiz-question {
+            background-color: var(--primary-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-inset);
+        }
+
+        .quiz-question h3 {
+            color: var(--highlight-red);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .quiz-option {
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid var(--card-border);
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .quiz-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            border-color: var(--highlight-blue);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--highlight-red);
+            background-color: #2a0507;
+        }
+
+        .quiz-option.correct {
+            background-color: var(--success-green);
+            border-color: var(--success-green);
+            color: white;
+            animation: bounce 0.5s ease;
+        }
+
+
+
+        .quiz-option.incorrect {
+            background-color: var(--error-red);
+            border-color: var(--error-red);
+            color: white;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            padding: 1.2rem;
+            background-color: var(--primary-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--card-border);
+            color: var(--highlight-red);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        .score-display span {
+            color: var(--accent-yellow);
+        }
+
+        /* Navigation */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background-color: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-dark);
+            border: 1px solid var(--card-border);
+        }
+
+        .nav-button {
+            background: var(--gradient-button);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            font-size: 1rem;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+            filter: brightness(1.1);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: var(--card-border);
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 8px;
+            background-color: var(--primary-bg);
+            border-radius: 4px;
+            margin: 0 2rem;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--highlight-red);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-bg);
+            color: var(--text-dark);
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--card-border);
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.5rem; }
+            .container { padding: 0 0.8rem; margin: 1rem auto; }
+            .slide-container { padding: 1.5rem; min-height: 500px;}
+            h2 { font-size: 2rem; margin-bottom: 1rem; }
+            h3 { font-size: 1.5rem; margin-top: 1.5rem; }
+            .tree-node { width: 120px; height: 80px; font-size: 0.9rem; }
+            .outcome-box { padding: 0.8rem; min-width: 110px; }
+            .quiz-options { grid-template-columns: 1fr; }
+            .nav-button { padding: 0.8rem 1.5rem; font-size: 0.9rem; }
+            .progress-bar { margin: 0 1rem; }
+            .quiz-question { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape" style="font-size: 3rem;">♦</div>
+        <div class="shape" style="font-size: 2.5rem;">●</div>
+        <div class="shape" style="font-size: 3rem;">▱</div>
+        <div class="shape" style="font-size: 2.5rem;">▲</div>
+    </div>
+
+    <header>
+        <h1>AI Decision Matrix</h1>
+        <p>Your Interactive Journey into Artificial Intelligence Choices</p>
+    </header>
+
+    <div class="container">
+        <div class="slide-container">
+            <div class="slide active">
+                <h2>Welcome to the AI Core! 🚀</h2>
+                <h3>Understanding How AI Makes Choices</h3>
+                <ul class="fun-list">
+                    <li><strong>Data-Driven Decisions:</strong> AI analyzes vast amounts of data to make informed choices.</li>
+                    <li><strong>Mimicking Intelligence:</strong> It processes information in ways that resemble human thought.</li>
+                    <li><strong>Real-World Impact:</strong> From recommending your next movie to guiding self-driving cars, AI is everywhere.</li>
+                    <li><strong>Pattern Recognition:</strong> AI excels at finding hidden connections and trends within data.</li>
+                </ul>
+                <p style="text-align: center; font-size: 1.2rem; margin-top: 2rem; color: var(--text-dark);">
+                    Prepare to delve deep into the fascinating world of AI decision-making!
+                </p>
+            </div>
+
+            <div class="slide">
+                <h2>Unpacking Decision Trees! 🌳</h2>
+                <h3>The Logic Behind the Branches</h3>
+                <ul class="fun-list">
+                    <li><strong>Visual Mapping:</strong> Decision trees visually map out choices and their potential outcomes.</li>
+                    <li><strong>Nodes:</strong> These are the points where decisions are made or questions are asked.</li>
+                    <li><strong>Branches:</strong> The paths that represent the different options or answers.</li>
+                    <li><strong>Leaves:</strong> The final outcomes or conclusions reached by following a path.</li>
+                </ul>
+                <div class="drag-activity">
+                    <h3>🎯 Drag & Drop Challenge!</h3>
+                    <p style="color: var(--text-dark);">Match the tree parts to their descriptions:</p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                        <div class="drag-item" draggable="true" data-answer="root">🌱 Root (Start)</div>
+                        <div class="drag-item" draggable="true" data-answer="branch">🌿 Branch (Path)</div>
+                        <div class="drag-item" draggable="true" data-answer="leaf">🍃 Leaf (Outcome)</div>
+                    </div>
+                    <div class="drop-zone" data-target="root">Where decisions begin</div>
+                    <div class="drop-zone" data-target="branch">Connects questions and answers</div>
+                    <div class="drop-zone" data-target="leaf">The final decision or result</div>
+                </div>
+            </div>
+
+            <div class="slide">
+                <h2>Build Your AI's Logic! 🧠✨</h2>
+                <p style="color: var(--text-dark);">This is your AI's brain. Drag the nodes to organize its decision-making process. Watch the logic connect!</p>
+                <div class="decision-canvas" id="decisionCanvas">
+                    <svg class="connector-svg" width="100%" height="100%"></svg>
+
+                    <div class="tree-node" id="node-start" style="left: 40%; top: 30px;">
+                        🤔<br>Sweet or Salty?
+                    </div>
+                    <div class="tree-node" id="node-sweet" data-parent="node-start" style="left: 20%; top: 200px;">
+                        🍫<br>Chocolatey?
+                    </div>
+                    <div class="tree-node" id="node-salty" data-parent="node-start" style="left: 60%; top: 200px;">
+                        🥔<br>Crunchy?
+                    </div>
+                    <div class="outcome-box" id="outcome-1" data-parent="node-sweet" style="left: 10%; top: 380px;">🍫 Chocolate Bar</div>
+                    <div class="outcome-box" id="outcome-2" data-parent="node-sweet" style="left: 30%; top: 380px;">🍓 Fruit Gummy</div>
+                    <div class="outcome-box" id="outcome-3" data-parent="node-salty" style="left: 50%; top: 380px;">🍿 Potato Chips</div>
+                    <div class="outcome-box" id="outcome-4" data-parent="node-salty" style="left: 70%; top: 380px;">🥨 Pretzels</div>
+                </div>
+                <p style="text-align: center; margin-top: 1.5rem; color: var(--text-dark);">
+                    <strong>Like assembling furniture, you're building the structure of a choice!</strong>
+                </p>
+            </div>
+            <div class="slide">
+                <h2>AI in Action: Beyond the Screen! 🌐</h2>
+                <h3>How AI Powers Your Favorite Platforms</h3>
+                <ul class="fun-list">
+                    <li><strong>Recommendation Engines:</strong> Like Netflix and YouTube, AI learns your preferences to suggest content.</li>
+                    <li><strong>Watch History:</strong> What you watch and for how long helps AI understand your tastes.</li>
+                    <li><strong>Engagement Signals:</strong> Your likes, comments, and shares are crucial data points.</li>
+                    <li><strong>Similar Viewers:</strong> AI finds patterns among users with shared interests to broaden recommendations.</li>
+                    <li><strong>Personalized Experiences:</strong> Your homepage is unique because AI curates it just for you.</li>
+                </ul>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <div style="font-size: 4rem; margin: 1rem; color: var(--accent-yellow);">🧠 + 📊 = ✨</div>
+                    <p style="font-size: 1.2rem; color: var(--text-dark);"><strong>AI + Data = Intelligent Personalization!</strong></p>
+                </div>
+            </div>
+
+            <div class="slide">
+                <h2>Navigating AI Ethics: Fairness & Beyond ⚖️</h2>
+                <h3>Making AI Responsible</h3>
+                <ul class="fun-list">
+                    <li><strong>Fairness:</strong> Ensuring AI decisions treat all individuals equitably, without bias.</li>
+                    <li><strong>Transparency:</strong> Can we understand *why* an AI made a particular decision?</li>
+                    <li><strong>Privacy:</strong> Protecting personal data during AI's decision-making processes.</li>
+                    <li><strong>Accountability:</strong> Determining who is responsible when AI decisions lead to unintended consequences.</li>
+                </ul>
+                <div style="background-color: var(--primary-bg); padding: 2rem; border-radius: var(--border-radius); margin-top: 2rem; border: 1px solid var(--card-border);">
+                    <h3>🤔 Food for Thought:</h3>
+                    <p style="color: var(--text-dark);">If an AI system decides who gets a loan or a job, why is fairness super important?</p>
+                    <p style="font-style: italic; margin-top: 1rem; color: var(--text-dark);">
+                        💡 Because AI learns from data, if the data is biased, the AI could make unfair decisions.
+                    </p>
+                </div>
+            </div>
+
+            <div class="slide">
+                <h2>🎯 Your AI Knowledge Challenge! 🎯</h2>
+                <div class="quiz-container">
+                    <div class="score-display">
+                        Your Score: <span id="quizScore">0</span> / <span id="totalQuestions">6</span> 🏆
+                    </div>
+                    
+                    <div class="quiz-question" data-correct="data-patterns">
+                        <h3>1. What is the primary method AI uses to make decisions?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-value="random-guessing">Random guessing</div>
+                            <div class="quiz-option" data-value="human-intuition">Human intuition</div>
+                            <div class="quiz-option" data-value="data-patterns">Analyzing data and patterns</div>
+                            <div class="quiz-option" data-value="magic-spells">Using magic spells</div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question" data-correct="root">
+                        <h3>2. What is the starting point of a decision tree often called?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-value="leaf">A Leaf</div>
+                            <div class="quiz-option" data-value="branch">A Branch</div>
+                            <div class="quiz-option" data-value="root">A Root</div>
+                            <div class="quiz-option" data-value="fruit">A Fruit</div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question" data-correct="youtube">
+                        <h3>3. Which of these is a common application where AI uses decision-making for recommendations?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-value="calculator">A Calculator</div>
+                            <div class="quiz-option" data-value="youtube">YouTube (for video suggestions)</div>
+                            <div class="quiz-option" data-value="notepad">A Notepad app</div>
+                            <div class="quiz-option" data-value="camera">A Camera</div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question" data-correct="fairness">
+                        <h3>4. Ensuring AI decisions treat everyone equally relates to which ethical consideration?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-value="privacy">Privacy</div>
+                            <div class="quiz-option" data-value="transparency">Transparency</div>
+                            <div class="quiz-option" data-value="fairness">Fairness</div>
+                            <div class="quiz-option" data-value="speed">Speed</div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question" data-correct="outcomes">
+                        <h3>5. In a decision tree, what do the 'leaves' typically represent?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-value="questions">New questions</div>
+                            <div class="quiz-option" data-value="branches">More branches</div>
+                            <div class="quiz-option" data-value="outcomes">The final outcomes or decisions</div>
+                            <div class="quiz-option" data-value="errors">Potential errors</div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question" data-correct="quality-data">
+                        <h3>6. What is essential for AI to make accurate and fair decisions?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-value="biased-data">Biased data</div>
+                            <div class="quiz-option" data-value="small-data">Very small datasets</div>
+                            <div class="quiz-option" data-value="quality-data">High-quality, unbiased data</div>
+                            <div class="quiz-option" data-value="no-data">No data at all</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide">
+                <h2>🎉 Mission Accomplished! 🎉</h2>
+                <h3>You're Now an AI Decision Pathfinder! 🏆</h3>
+                <ul class="fun-list">
+                    <li><strong>Decision Trees Demystified:</strong> You understand how AI analyzes options systematically.</li>
+                    <li><strong>AI Applications Unveiled:</strong> You can identify AI's role in daily life.</li>
+                    <li><strong>Ethical AI Insights:</strong> You grasp the importance of fairness, transparency, and privacy.</li>
+                    <li><strong>Data Power Understood:</strong> You know why good data is the backbone of smart AI.</li>
+                </ul>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <div style="font-size: 5rem; margin: 1rem; color: var(--accent-yellow);">🎓🤖🌟</div>
+                    <p style="font-size: 1.5rem; color: var(--highlight-red);"><strong>Next Up: The World of Algorithms! 💻</strong></p>
+                    <p style="font-size: 1.2rem; color: var(--text-dark);">Join us for an exciting dive into how computers solve problems step-by-step!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">⬅️ Previous</button>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">Next ➡️</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 AI Decision Matrix. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let quizScore = 0;
+        const totalQuestions = document.querySelectorAll('.quiz-question').length;
+        document.getElementById('totalQuestions').textContent = totalQuestions;
+
+        // Initialize
+        updateSlide();
+        initializeDecisionTree(); // Initialize the new interactive tree
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+            updateSlide();
+        }
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Re-draw connectors if the decision tree slide becomes active
+            if (slides[currentSlide] && slides[currentSlide].querySelector('#decisionCanvas')) {
+                // A short delay ensures the slide is fully rendered before drawing
+                setTimeout(initializeDecisionTree, 50); 
+            }
+        }
+
+        // ========= IMPROVED JAVASCRIPT FOR DECISION TREE STARTS HERE =========
+        function initializeDecisionTree() {
+            const canvas = document.getElementById('decisionCanvas');
+            if (!canvas) return;
+
+            const svg = canvas.querySelector('.connector-svg');
+            const draggables = canvas.querySelectorAll('.tree-node, .outcome-box');
+            let activeDraggable = null;
+
+            function drawConnectors() {
+                if (!svg) return;
+                svg.innerHTML = ''; // Clear existing lines
+                draggables.forEach(child => {
+                    const parentId = child.dataset.parent;
+                    if (parentId) {
+                        const parent = document.getElementById(parentId);
+                        if (parent) {
+                            const pRect = parent.getBoundingClientRect();
+                            const cRect = child.getBoundingClientRect();
+                            const canvasRect = canvas.getBoundingClientRect();
+
+                            const pCenterX = pRect.left - canvasRect.left + pRect.width / 2;
+                            const pCenterY = pRect.top - canvasRect.top + pRect.height / 2;
+
+                            const cCenterX = cRect.left - canvasRect.left + cRect.width / 2;
+                            const cCenterY = cRect.top - canvasRect.top + cRect.height / 2;
+
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', pCenterX);
+                            line.setAttribute('y1', pCenterY);
+                            line.setAttribute('x2', cCenterX);
+                            line.setAttribute('y2', cCenterY);
+                            svg.appendChild(line);
+                        }
+                    }
+                });
+            }
+            
+            draggables.forEach(draggable => {
+                draggable.addEventListener('mousedown', startDrag);
+                draggable.addEventListener('touchstart', startDrag, { passive: false });
+            });
+
+            function startDrag(e) {
+                // Allow text selection inside nodes without starting a drag
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                    return;
+                }
+                e.preventDefault();
+                activeDraggable = e.currentTarget;
+                if (!activeDraggable) return;
+
+                activeDraggable.classList.add('dragging');
+
+                const rect = canvas.getBoundingClientRect();
+                const offsetX = (e.clientX || e.touches[0].clientX) - activeDraggable.getBoundingClientRect().left;
+                const offsetY = (e.clientY || e.touches[0].clientY) - activeDraggable.getBoundingClientRect().top;
+
+                function onMove(e) {
+                    if (!activeDraggable) return;
+                    e.preventDefault();
+
+                    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+                    let newLeft = x - offsetX;
+                    let newTop = y - offsetY;
+
+                    newLeft = Math.max(0, Math.min(newLeft, rect.width - activeDraggable.offsetWidth));
+                    newTop = Math.max(0, Math.min(newTop, rect.height - activeDraggable.offsetHeight));
+
+                    activeDraggable.style.left = newLeft + 'px';
+                    activeDraggable.style.top = newTop + 'px';
+
+                    drawConnectors();
+                }
+
+                function onEnd() {
+                    if (activeDraggable) {
+                        activeDraggable.classList.remove('dragging');
+                        activeDraggable = null;
+                    }
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                }
+
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('touchend', onEnd);
+            }
+
+            drawConnectors();
+        }
+        // ========= IMPROVED JAVASCRIPT FOR DECISION TREE ENDS HERE =========
+
+        // Drag and Drop Activity (for Slide 2)
+        document.querySelectorAll('.drag-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', e.target.dataset.answer);
+                e.dataTransfer.effectAllowed = 'move';
+            });
+        });
+
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+            
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                const draggedAnswer = e.dataTransfer.getData('text/plain');
+                if (draggedAnswer === zone.dataset.target) {
+                    zone.innerHTML = `✅ ${draggedAnswer.charAt(0).toUpperCase() + draggedAnswer.slice(1)}!`;
+                    zone.classList.add('correct-drop');
+                    zone.classList.remove('incorrect-drop');
+                    const draggedElement = document.querySelector(`.drag-item[data-answer="${draggedAnswer}"]`);
+                    if (draggedElement) {
+                        draggedElement.style.opacity = '0.5';
+                        draggedElement.setAttribute('draggable', 'false');
+                    }
+                } else {
+                    zone.innerHTML = `❌ Try again!`;
+                    zone.classList.add('incorrect-drop');
+                    zone.classList.remove('correct-drop');
+                }
+            });
+        });
+
+        // Quiz functionality
+        const quizQuestions = document.querySelectorAll('.quiz-question');
+
+        quizQuestions.forEach(questionDiv => {
+            const options = questionDiv.querySelectorAll('.quiz-option');
+            let answered = false;
+
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    if (answered) return;
+
+                    answered = true;
+                    const selectedValue = this.dataset.value;
+                    const correctAnswer = questionDiv.dataset.correct;
+
+                    if (selectedValue === correctAnswer) {
+                        this.classList.add('correct');
+                        quizScore++;
+                        updateQuizScore();
+                    } else {
+                        this.classList.add('incorrect');
+                        const correctOption = questionDiv.querySelector(`[data-value="${correctAnswer}"]`);
+                        if (correctOption) correctOption.classList.add('correct');
+                    }
+                    
+                    options.forEach(opt => opt.style.pointerEvents = 'none');
+                });
+            });
+        });
+
+        function updateQuizScore() {
+            document.getElementById('quizScore').textContent = quizScore;
+        }
+
+        updateQuizScore();
+    </script>
+</body>
+</html>
